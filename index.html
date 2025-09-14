@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Test Analysis Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .follow-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255,107,107,0.4);
+            margin-top: 15px;
+        }
+
+        .follow-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255,107,107,0.5);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .section-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .section-group h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .section-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .section-inputs input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
+        }
+
+        .analysis-section {
+            grid-column: span 2;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stat-card h3 {
+            font-size: 24px;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #666;
+            font-size: 13px;
+        }
+
+        .percentile-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+
+        .percentile-high {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .percentile-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .percentile-low {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .mock-history {
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .mock-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .mock-item:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+
+        .mock-item h4 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .mock-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .detail-item strong {
+            color: #333;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .section-details {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .section-card {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .section-card h5 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .section-stat {
+            font-size: 13px;
+            margin: 4px 0;
+            color: #666;
+        }
+
+        .chart-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        canvas {
+            max-width: 100%;
+            height: 300px;
+        }
+
+        .progress-indicator {
+            margin-top: 20px;
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .analysis-section {
+                grid-column: span 1;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .mock-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.5s ease;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+
+        .form-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .form-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .form-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .form-scroll::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Mock Test Analysis Dashboard</h1>
+            <p>Track, Analyze, and Improve Your Performance</p>
+            <button class="follow-btn" onclick="followCodeAndBeyond()">
+                ✨ Follow code_and_beyond
+            </button>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📝 Add Mock Test Result</h2>
+                <div class="form-scroll">
+                    <form id="mockForm">
+                        <div class="form-group">
+                            <label>Mock Test Name</label>
+                            <input type="text" id="mockName" required placeholder="e.g., JEE Main Mock 1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="mockDate" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Rank (if applicable)</label>
+                            <input type="number" id="mockRank" placeholder="Enter rank">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Overall Percentile</label>
+                            <input type="number" step="0.01" id="overallPercentile" required placeholder="e.g., 98.5">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Total Marks Obtained</label>
+                            <input type="number" step="0.01" id="marksObtained" required placeholder="Enter marks obtained">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Total Questions Attempted</label>
+                            <input type="number" id="totalAttempted" required placeholder="Total questions attempted">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Total Correct Questions</label>
+                            <input type="number" id="totalCorrect" required placeholder="Total correct answers">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Total Negative Marks</label>
+                            <input type="number" step="0.01" id="totalNegative" placeholder="Total negative marks">
+                        </div>
+
+                        <div class="section-group">
+                            <h4>Section 1 Details</h4>
+                            <div class="section-inputs">
+                                <input type="text" id="section1Name" placeholder="Section name" required>
+                                <input type="number" id="section1Attempted" placeholder="Attempted" required>
+                                <input type="number" id="section1Correct" placeholder="Correct" required>
+                                <input type="number" step="0.01" id="section1Marks" placeholder="Marks obtained" required>
+                                <input type="number" step="0.01" id="section1Negative" placeholder="Negative marks">
+                                <input type="number" step="0.01" id="section1Percentile" placeholder="Percentile" required>
+                            </div>
+                        </div>
+
+                        <div class="section-group">
+                            <h4>Section 2 Details</h4>
+                            <div class="section-inputs">
+                                <input type="text" id="section2Name" placeholder="Section name" required>
+                                <input type="number" id="section2Attempted" placeholder="Attempted" required>
+                                <input type="number" id="section2Correct" placeholder="Correct" required>
+                                <input type="number" step="0.01" id="section2Marks" placeholder="Marks obtained" required>
+                                <input type="number" step="0.01" id="section2Negative" placeholder="Negative marks">
+                                <input type="number" step="0.01" id="section2Percentile" placeholder="Percentile" required>
+                            </div>
+                        </div>
+
+                        <div class="section-group">
+                            <h4>Section 3 Details</h4>
+                            <div class="section-inputs">
+                                <input type="text" id="section3Name" placeholder="Section name" required>
+                                <input type="number" id="section3Attempted" placeholder="Attempted" required>
+                                <input type="number" id="section3Correct" placeholder="Correct" required>
+                                <input type="number" step="0.01" id="section3Marks" placeholder="Marks obtained" required>
+                                <input type="number" step="0.01" id="section3Negative" placeholder="Negative marks">
+                                <input type="number" step="0.01" id="section3Percentile" placeholder="Percentile" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">Add Mock Test</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Current Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="avgMarks">0</h3>
+                        <p>Avg Marks</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="bestMarks">0</h3>
+                        <p>Best Marks</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="avgPercentile">0</h3>
+                        <p>Avg Percentile</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="avgAccuracy">0%</h3>
+                        <p>Avg Accuracy</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalMocks">0</h3>
+                        <p>Total Mocks</p>
+                    </div>
+                </div>
+
+                <div class="progress-indicator">
+                    <h3 style="margin-bottom: 10px; color: #333;">Overall Progress (Percentile)</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar" style="width: 0%">
+                            0%
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card analysis-section">
+                <h2>📚 Mock Test History & Analysis</h2>
+                <div id="alertContainer"></div>
+                <div class="mock-history" id="mockHistory">
+                    <p style="text-align: center; color: #999;">No mock tests added yet. Start by adding your first mock test!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script>
+        let mockTests = [];
+        let chart = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMockTests();
+            initializeChart();
+            document.getElementById('mockDate').valueAsDate = new Date();
+        });
+
+        // Load data from localStorage
+        function loadMockTests() {
+            const storedData = localStorage.getItem('mockTestData');
+            if (storedData) {
+                mockTests = JSON.parse(storedData);
+                updateAnalysis();
+                displayMockHistory();
+                updateChart();
+            }
+        }
+
+        // Save data to localStorage
+        function saveMockTests() {
+            localStorage.setItem('mockTestData', JSON.stringify(mockTests));
+        }
+
+        document.getElementById('mockForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const mockData = {
+                id: Date.now(),
+                name: document.getElementById('mockName').value,
+                date: document.getElementById('mockDate').value,
+                rank: document.getElementById('mockRank').value || 'N/A',
+                overallPercentile: parseFloat(document.getElementById('overallPercentile').value),
+                marksObtained: parseFloat(document.getElementById('marksObtained').value),
+                totalAttempted: parseInt(document.getElementById('totalAttempted').value),
+                totalCorrect: parseInt(document.getElementById('totalCorrect').value),
+                totalNegative: parseFloat(document.getElementById('totalNegative').value) || 0,
+                sections: [
+                    {
+                        name: document.getElementById('section1Name').value,
+                        attempted: parseInt(document.getElementById('section1Attempted').value),
+                        correct: parseInt(document.getElementById('section1Correct').value),
+                        marks: parseFloat(document.getElementById('section1Marks').value),
+                        negative: parseFloat(document.getElementById('section1Negative').value) || 0,
+                        percentile: parseFloat(document.getElementById('section1Percentile').value)
+                    },
+                    {
+                        name: document.getElementById('section2Name').value,
+                        attempted: parseInt(document.getElementById('section2Attempted').value),
+                        correct: parseInt(document.getElementById('section2Correct').value),
+                        marks: parseFloat(document.getElementById('section2Marks').value),
+                        negative: parseFloat(document.getElementById('section2Negative').value) || 0,
+                        percentile: parseFloat(document.getElementById('section2Percentile').value)
+                    },
+                    {
+                        name: document.getElementById('section3Name').value,
+                        attempted: parseInt(document.getElementById('section3Attempted').value),
+                        correct: parseInt(document.getElementById('section3Correct').value),
+                        marks: parseFloat(document.getElementById('section3Marks').value),
+                        negative: parseFloat(document.getElementById('section3Negative').value) || 0,
+                        percentile: parseFloat(document.getElementById('section3Percentile').value)
+                    }
+                ]
+            };
+            
+            mockData.accuracy = ((mockData.totalCorrect / mockData.totalAttempted) * 100).toFixed(1);
+            
+            mockData.sections.forEach(section => {
+                section.accuracy = section.attempted > 0 ? 
+                    ((section.correct / section.attempted) * 100).toFixed(1) : 0;
+            });
+            
+            mockTests.push(mockData);
+            saveMockTests(); // Save data to localStorage after adding a new test
+            updateAnalysis();
+            displayMockHistory();
+            updateChart();
+            showAlert('Mock test added successfully!');
+            
+            document.getElementById('mockForm').reset();
+            document.getElementById('mockDate').valueAsDate = new Date();
+        });
+
+        function updateAnalysis() {
+            if (mockTests.length === 0) return;
+            
+            const avgMarks = mockTests.reduce((sum, test) => sum + test.marksObtained, 0) / mockTests.length;
+            const bestMarks = Math.max(...mockTests.map(test => test.marksObtained));
+            const avgPercentile = mockTests.reduce((sum, test) => sum + test.overallPercentile, 0) / mockTests.length;
+            const avgAccuracy = mockTests.reduce((sum, test) => sum + parseFloat(test.accuracy), 0) / mockTests.length;
+            
+            document.getElementById('avgMarks').textContent = avgMarks.toFixed(1);
+            document.getElementById('bestMarks').textContent = bestMarks.toFixed(1);
+            document.getElementById('avgPercentile').textContent = avgPercentile.toFixed(2);
+            document.getElementById('avgAccuracy').textContent = avgAccuracy.toFixed(1) + '%';
+            document.getElementById('totalMocks').textContent = mockTests.length;
+            
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = avgPercentile + '%';
+            progressBar.textContent = avgPercentile.toFixed(1) + '%';
+        }
+
+        function getPercentileBadge(percentile) {
+            if (percentile >= 90) {
+                return '<span class="percentile-badge percentile-high">' + percentile.toFixed(1) + '%</span>';
+            } else if (percentile >= 70) {
+                return '<span class="percentile-badge percentile-medium">' + percentile.toFixed(1) + '%</span>';
+            } else {
+                return '<span class="percentile-badge percentile-low">' + percentile.toFixed(1) + '%</span>';
+            }
+        }
+
+        function displayMockHistory() {
+            const historyContainer = document.getElementById('mockHistory');
+            
+            if (mockTests.length === 0) {
+                historyContainer.innerHTML = '<p style="text-align: center; color: #999;">No mock tests added yet. Start by adding your first mock test!</p>';
+                return;
+            }
+            
+            historyContainer.innerHTML = '';
+            
+            const sortedTests = [...mockTests].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            sortedTests.forEach((test, index) => {
+                const prevTest = index < sortedTests.length - 1 ? sortedTests[index + 1] : null;
+                const marksImprovement = prevTest ? (test.marksObtained - prevTest.marksObtained).toFixed(1) : 0;
+                const percentileImprovement = prevTest ? (test.overallPercentile - prevTest.overallPercentile).toFixed(2) : 0;
+                
+                const mockItem = document.createElement('div');
+                mockItem.className = 'mock-item';
+                mockItem.innerHTML = `
+                    <h4>${test.name} - ${new Date(test.date).toLocaleDateString()} ${getPercentileBadge(test.overallPercentile)}</h4>
+                    <div class="mock-details">
+                        <div class="detail-item">
+                            <strong>📊 Marks Obtained</strong>
+                            ${test.marksObtained}
+                        </div>
+                        <div class="detail-item">
+                            <strong>🏆 Rank</strong>
+                            ${test.rank}
+                        </div>
+                        <div class="detail-item">
+                            <strong>📈 Overall Percentile</strong>
+                            ${test.overallPercentile}%
+                        </div>
+                        <div class="detail-item">
+                            <strong>✅ Correct/Attempted</strong>
+                            ${test.totalCorrect}/${test.totalAttempted}
+                        </div>
+                        <div class="detail-item">
+                            <strong>🎯 Accuracy</strong>
+                            ${test.accuracy}%
+                        </div>
+                        <div class="detail-item">
+                            <strong>❌ Negative Marks</strong>
+                            -${test.totalNegative}
+                        </div>
+                    </div>
+                    
+                    <div class="section-details">
+                        <h5 style="color: #667eea; margin-bottom: 10px;">Section-wise Performance</h5>
+                        <div class="section-grid">
+                            ${test.sections.map(section => `
+                                <div class="section-card">
+                                    <h5>${section.name}</h5>
+                                    <div class="section-stat">📊 Marks: <strong>${section.marks}</strong></div>
+                                    <div class="section-stat">✅ Correct: <strong>${section.correct}/${section.attempted}</strong></div>
+                                    <div class="section-stat">🎯 Accuracy: <strong>${section.accuracy}%</strong></div>
+                                    <div class="section-stat">❌ Negative: <strong>-${section.negative}</strong></div>
+                                    <div class="section-stat">📈 Percentile: ${getPercentileBadge(section.percentile)}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    ${prevTest ? `
+                        <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0;">
+                            <div style="display: flex; gap: 20px;">
+                                ${marksImprovement !== '0.0' ? `
+                                    <span style="color: ${marksImprovement > 0 ? '#28a745' : '#dc3545'};">
+                                        📊 Marks: ${marksImprovement > 0 ? '+' : ''}${marksImprovement}
+                                    </span>
+                                ` : ''}
+                                ${percentileImprovement !== '0.00' ? `
+                                    <span style="color: ${percentileImprovement > 0 ? '#28a745' : '#dc3545'};">
+                                        📈 Percentile: ${percentileImprovement > 0 ? '+' : ''}${percentileImprovement}%
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+                historyContainer.appendChild(mockItem);
+            });
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Marks Obtained',
+                            data: [],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Percentile',
+                            data: [],
+                            borderColor: '#ff6b6b',
+                            backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Performance Trend'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Marks'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Percentile'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart() {
+            if (!chart || mockTests.length === 0) return;
+            
+            const sortedTests = [...mockTests].sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            chart.data.labels = sortedTests.map(test => 
+                new Date(test.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+            );
+            chart.data.datasets[0].data = sortedTests.map(test => test.marksObtained);
+            chart.data.datasets[1].data = sortedTests.map(test => test.overallPercentile);
+            
+            chart.update();
+        }
+
+        function showAlert(message) {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        function followCodeAndBeyond() {
+            alert('Following code_and_beyond! 🎉\nThank you for your support!');
+        }
+    </script>
+</body>
+</html>
